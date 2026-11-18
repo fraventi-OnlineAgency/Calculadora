@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de Precios para Manicuristas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leche:#F4F0F6; --papel:#FFFFFF; --ciruela:#2B1533; --ciruela-2:#5B4763;
+  --cereza:#C2124A; --nude:#EBC9BC; --cromo:#DCD5E3; --cromo-2:#B9AFC6;
+  --ok:#1F8A62; --warn:#C98A00; --bad:#C2124A;
+  --display:"Gabarito", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r-lg:22px; --r-sm:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --leche:#1A1020; --papel:#25182C; --ciruela:#F3EAF6; --ciruela-2:#C9B8D0;
+    --cromo:#3B2C43; --cromo-2:#5A4864; --nude:#7A4E45; }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--leche);color:var(--ciruela);font:16px/1.5 var(--body)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cereza);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 18px 64px}
+
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.brand{font:600 14px/1.3 var(--display);color:var(--ciruela-2)}
+.brand b{display:block;color:var(--ciruela);font-size:15px}
+.flag{font-size:12.5px;line-height:1.35;background:var(--papel);border:1.5px dashed var(--cereza);color:var(--cereza);
+  padding:6px 10px;border-radius:10px;max-width:190px;text-align:right}
+
+h1{font:800 clamp(32px,7.5vw,54px)/1.02 var(--display);letter-spacing:-.02em;margin:6px 0 10px;max-width:15ch}
+.lede{font-size:17px;color:var(--ciruela-2);max-width:46ch;margin:0 0 26px}
+
+.grid{display:grid;gap:22px}
+@media (min-width:880px){.grid{grid-template-columns:1fr 420px;align-items:start}.result{position:sticky;top:18px;order:2}}
+
+/* Result card */
+.result{background:var(--ciruela);color:#fff;border-radius:var(--r-lg);padding:22px 22px 20px;overflow:hidden}
+@media (prefers-color-scheme: dark){.result{background:#0E0712;border:1px solid var(--cromo)}}
+.res-head{display:grid;grid-template-columns:120px 1fr;gap:18px;align-items:center}
+.nail{width:120px;height:auto;display:block}
+.verdict{font:700 19px/1.2 var(--display);margin:0 0 6px}
+.verdict small{display:block;font:400 14px/1.4 var(--body);opacity:.8;margin-top:4px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--warn)}
+.big{margin:18px 0 4px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,.18);padding-top:16px}
+.big span{font-size:14px;opacity:.85;max-width:16ch;line-height:1.3}
+.big strong{white-space:nowrap;font:800 clamp(34px,10vw,46px)/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:15px;border-bottom:1px solid rgba(255,255,255,.1)}
+.row:last-child{border-bottom:0}
+.row em{white-space:nowrap;font-style:normal;font-variant-numeric:tabular-nums;font-weight:600}
+.key{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;vertical-align:0}
+.yours{margin-top:14px;background:rgba(255,255,255,.08);border-radius:14px;padding:12px 14px}
+.yours .row{border-color:rgba(255,255,255,.08)}
+.note-sm{font-size:12.5px;opacity:.7;margin:12px 0 0}
+
+/* Steps */
+section.step{background:var(--papel);border-radius:var(--r-lg);padding:20px 18px;border:1px solid var(--cromo)}
+.step h2{font:700 21px/1.2 var(--display);margin:0 0 4px;display:flex;gap:10px;align-items:center}
+.n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--nude);color:var(--ciruela);display:grid;place-items:center;font:800 15px var(--display)}
+@media (prefers-color-scheme: dark){.n{color:#fff}}
+.step p.hint{margin:0 0 14px 38px;color:var(--ciruela-2);font-size:14.5px}
+.fields{display:grid;gap:12px}
+@media (min-width:560px){.fields.two{grid-template-columns:1fr 1fr}}
+label.f{display:grid;gap:5px;font-size:14px;color:var(--ciruela-2)}
+label.f span.l{font-weight:600;color:var(--ciruela)}
+.in{display:flex;align-items:center;background:var(--leche);border:1.5px solid var(--cromo-2);border-radius:var(--r-sm);padding:0 12px;min-height:48px}
+.in:focus-within{border-color:var(--cereza);box-shadow:0 0 0 3px color-mix(in srgb,var(--cereza) 22%,transparent)}
+.in input,.in select{border:0;background:transparent;font:600 18px var(--display);color:var(--ciruela);width:100%;padding:10px 0;outline:none;font-variant-numeric:tabular-nums;min-width:0}
+.in .u{color:var(--ciruela-2);font-size:14px;padding-left:6px;white-space:nowrap}
+.seg{display:inline-flex;background:var(--leche);border:1.5px solid var(--cromo-2);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;font:700 15px var(--display);color:var(--ciruela-2);padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ciruela);color:var(--leche)}
+
+/* Products */
+.prods{display:grid;gap:10px}
+.prod{display:grid;grid-template-columns:1fr auto;gap:8px 10px;background:var(--leche);border-radius:16px;padding:12px;border:1px solid var(--cromo)}
+.prod .name{grid-column:1/-1;display:flex;gap:8px;align-items:center}
+.prod .name input{flex:1;border:0;background:transparent;font:700 16px var(--display);color:var(--ciruela);padding:4px 0;min-width:0}
+.prod .name input:focus{outline:none;border-bottom:2px solid var(--cereza)}
+.prod .x{border:0;background:transparent;color:var(--ciruela-2);font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:8px}
+.prod .nums{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.prod .nums label{display:grid;gap:3px;font-size:12px;line-height:1.25;align-content:end;color:var(--ciruela-2)}
+.prod .nums .in{min-height:42px;padding:0 9px;background:var(--papel)}
+.prod .nums .in input{font-size:16px}
+.prod .cost{grid-column:1/-1;display:flex;justify-content:space-between;font-size:14px;color:var(--ciruela-2)}
+.prod .cost b{color:var(--ciruela);font-variant-numeric:tabular-nums}
+.chip{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--papel);border:1px solid var(--cromo-2);color:var(--ciruela-2);white-space:nowrap}
+.add{margin-top:12px;width:100%;min-height:48px;border:1.5px dashed var(--cromo-2);background:transparent;border-radius:16px;font:700 15px var(--display);color:var(--ciruela);cursor:pointer}
+.add:hover{border-color:var(--cereza);color:var(--cereza)}
+.sum{display:flex;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--cromo);font:700 17px var(--display)}
+
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{min-height:46px;padding:0 18px;border-radius:999px;font:700 15px var(--display);cursor:pointer;border:1.5px solid var(--ciruela);background:transparent;color:var(--ciruela)}
+.btn.primary{background:var(--cereza);border-color:var(--cereza);color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+
+footer{margin-top:34px;font-size:13.5px;color:var(--ciruela-2);max-width:72ch}
+footer h3{font:700 16px var(--display);color:var(--ciruela);margin:22px 0 6px}
+footer ul{padding-left:18px;margin:6px 0}
+footer li{margin:3px 0}
+.cta{display:none;margin-top:22px;background:var(--nude);color:var(--ciruela);border-radius:var(--r-lg);padding:20px}
+.cta h3{margin:0 0 6px;font:800 22px var(--display)}
+.cta p{margin:0 0 14px}
+@media (prefers-color-scheme: dark){.cta{color:#fff}}
+
+.layer{transition:y .5s cubic-bezier(.2,.8,.2,1),height .5s cubic-bezier(.2,.8,.2,1)}
+.mark{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.layer,.mark{transition:none}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><b>Fraventi Agency</b>Demo de un servicio: set completo de gel</div>
+    <div class="flag">Precios de ejemplo, sin verificar. Pon los tuyos.</div>
+  </header>
+
+  <h1>¿Cuánto te deja de verdad un set de gel?</h1>
+  <p class="lede">Escribe tus números y mira al momento tu coste real, el precio mínimo para no perder dinero y el precio que paga tu sueldo.</p>
+
+  <div class="grid">
+    <!-- RESULT -->
+    <aside class="result" aria-live="polite" aria-label="Resultado">
+      <div class="res-head">
+        <svg class="nail" viewBox="0 0 120 170" role="img" aria-labelledby="nailT">
+          <title id="nailT">Uña que se llena por capas: producto, gastos fijos y tu sueldo. La línea marca tu precio actual.</title>
+          <defs>
+            <clipPath id="almond"><path d="M60 6 C92 6 110 40 110 78 L110 150 Q110 164 96 164 L24 164 Q10 164 10 150 L10 78 C10 40 28 6 60 6 Z"/></clipPath>
+            <linearGradient id="gloss" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".25" stop-color="#fff" stop-opacity=".35"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          </defs>
+          <g clip-path="url(#almond)">
+            <rect x="0" y="0" width="120" height="170" fill="rgba(255,255,255,.08)"/>
+            <rect id="lTop" class="layer" x="0" width="120" fill="#C2124A"/>
+            <rect id="lFix" class="layer" x="0" width="120" fill="#E07A9A"/>
+            <rect id="lProd" class="layer" x="0" width="120" fill="#EBC9BC"/>
+            <rect x="0" y="0" width="120" height="170" fill="url(#gloss)"/>
+          </g>
+          <path d="M60 6 C92 6 110 40 110 78 L110 150 Q110 164 96 164 L24 164 Q10 164 10 150 L10 78 C10 40 28 6 60 6 Z" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/>
+          <g id="mark" class="mark"><line x1="2" x2="118" y1="0" y2="0" stroke="#fff" stroke-width="3" stroke-dasharray="6 4"/></g>
+        </svg>
+        <div>
+          <p class="verdict" id="verdict"><span class="dot" id="dot"></span><span id="vText">Calculando…</span><small id="vSub"></small></p>
+        </div>
+      </div>
+
+      <div class="big"><span>Precio sugerido al cliente, con IVA</span><strong id="oSug">–</strong></div>
+      <div class="row"><span>Precio mínimo (por debajo pierdes)</span><em id="oMin">–</em></div>
+
+      <div style="margin-top:12px">
+        <div class="row"><span><i class="key" style="background:#EBC9BC"></i>Producto</span><em id="oProd">–</em></div>
+        <div class="row"><span><i class="key" style="background:#E07A9A"></i>Gastos fijos de este set</span><em id="oFix">–</em></div>
+        <div class="row"><span><i class="key" style="background:#C2124A"></i>Tu sueldo por este set</span><em id="oWage">–</em></div>
+      </div>
+
+      <div class="yours">
+        <div class="row"><span>Con tu precio actual te quedan</span><em id="oNet">–</em></div>
+        <div class="row"><span>Ganancia tras producto y gastos</span><em id="oProfit">–</em></div>
+        <div class="row"><span>Lo que ganas por hora</span><em id="oHour">–</em></div>
+      </div>
+      <p class="note-sm">«Te quedan» ya descuenta el IVA y la comisión de tarjeta. La línea blanca de la uña es tu precio actual.</p>
+    </aside>
+
+    <!-- INPUTS -->
+    <div style="display:grid;gap:18px">
+      <section class="step" aria-labelledby="s1">
+        <h2 id="s1"><span class="n">1</span>Tu set</h2>
+        <p class="hint">Lo que cobras hoy y lo que tardas.</p>
+        <div class="fields two">
+          <label class="f"><span class="l">Tu precio actual</span><span class="in"><input id="price" inputmode="decimal" value="35"><span class="u cur">€</span></span></label>
+          <label class="f"><span class="l">Minutos por set</span><span class="in"><input id="mins" inputmode="numeric" value="120"><span class="u">min</span></span></label>
+        </div>
+      </section>
+
+      <section class="step" aria-labelledby="s2">
+        <h2 id="s2"><span class="n">2</span>Tu mes</h2>
+        <p class="hint">Para repartir tus gastos y tu sueldo entre las horas que trabajas.</p>
+        <div style="margin:0 0 14px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:600">Moneda</span>
+          <div class="seg" role="group" aria-label="Moneda">
+            <button type="button" data-cur="€" aria-pressed="true">€ España</button>
+            <button type="button" data-cur="MX$" aria-pressed="false">MX$ México</button>
+          </div>
+        </div>
+        <div class="fields two">
+          <label class="f"><span class="l">Horas con clientas al mes</span><span class="in"><input id="hours" inputmode="numeric" value="120"><span class="u">h</span></span></label>
+          <label class="f"><span class="l">Gastos fijos al mes</span><span class="in"><input id="fixed" inputmode="decimal" value="400"><span class="u cur">€</span></span></label>
+          <label class="f"><span class="l">Sueldo que quieres al mes</span><span class="in"><input id="wage" inputmode="decimal" value="1400"><span class="u cur">€</span></span></label>
+          <label class="f"><span class="l">IVA que cobras</span><span class="in"><input id="iva" inputmode="decimal" value="21"><span class="u">%</span></span></label>
+          <label class="f"><span class="l">Comisión de tarjeta</span><span class="in"><input id="card" inputmode="decimal" value="1.5"><span class="u">%</span></span></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Gastos fijos: alquiler o parte de casa, luz, cuota, apps, lámpara. El IVA depende de tu caso: confírmalo con tu gestor o contador.</p>
+      </section>
+
+      <section class="step" aria-labelledby="s3">
+        <h2 id="s3"><span class="n">3</span>Productos del set</h2>
+        <p class="hint">Precio del envase, cuántas unidades o sets te da, y cuántas usas en un set.</p>
+        <div class="prods" id="prods"></div>
+        <button class="add" id="addP" type="button">+ Añadir producto</button>
+        <div class="sum"><span>Producto por set</span><span id="sumP">–</span></div>
+      </section>
+
+      <div class="tools">
+        <button class="btn" id="reset" type="button">Volver al ejemplo</button>
+      </div>
+
+      <div class="cta" id="cta">
+        <h3>¿Te sirve? Hay versión completa</h3>
+        <p>Hasta 30 servicios, precio por uña decorada, simulador de subida de precio y lista de precios para Instagram.</p>
+        <a class="btn primary" id="ctaLink" href="#">Reservar la versión completa</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <h3>Antes de usar los números</h3>
+    <p>Los precios de producto son ejemplos de tiendas en España comprobados el 15/11/2026. Cuántos sets da cada envase y los valores del mes son supuestos: cámbialos por los tuyos. Esta calculadora ayuda a hacer cuentas; no es asesoría fiscal ni financiera, y no dice cuánto cobrar en tu zona.</p>
+    <h3>Fuentes de los precios de ejemplo</h3>
+    <ul>
+      <li><a href="https://www.indigo-nails.com/es-es/take-your-time-builder-15ml">Indigo Take Your Time Builder 15 g, 12,40 €</a></li>
+      <li><a href="https://www.indigo-nails.com/es-es/acid-primer-15ml">Indigo Acid Primer 15 ml, 6,90 €</a></li>
+      <li><a href="https://www.indigo-nails.com/es-es/wet-look-7ml">Indigo Wet Look top coat 7 ml, 10,90 €</a></li>
+      <li><a href="https://www.indigo-nails.com/es-es/cleaner-250ml">Indigo Cleaner Superstrong 250 ml, 8,30 €</a></li>
+      <li><a href="https://www.indigo-nails.com/es-es/moldes-de-unas-transparentes-100-uds">Indigo Moldes Transparentes 100 uds, 5,00 €</a></li>
+      <li><a href="https://www.indigo-nails.com/es-es/toallitas-sin-pelusa-500-unidades">Indigo Toallitas sin pelusa 500 uds, 6,00 €</a></li>
+      <li><a href="https://www.druni.es/maquillaje/unas/accesorios/limas">Neonail Lima 100/180 en Druni, 2,50 € (no disponible ese día)</a></li>
+    </ul>
+    <p>Las marcas solo se citan como ejemplo de precio; Fraventi Agency no tiene relación con ellas. Licencia de uso personal: no se permite revender. Versión demo 0.2.</p>
+  </footer>
+</div>
+
+<script>
+/* Pon aquí el enlace de preventa de Whop cuando exista; vacío = el bloque no se muestra. */
+const PRESALE_URL = "";
+
+const EXAMPLE = {
+  cur:"€", price:35, mins:120, hours:120, fixed:400, wage:1400, iva:21, card:1.5,
+  prods:[
+    {n:"Gel constructor (builder) 15 g", p:12.40, u:10, q:1, t:"Sets por bote"},
+    {n:"Primer ácido 15 ml", p:6.90, u:80, q:1, t:"Usos por bote"},
+    {n:"Top coat 7 ml", p:10.90, u:30, q:1, t:"Usos por bote"},
+    {n:"Cleaner 250 ml", p:8.30, u:100, q:1, t:"Usos por bote"},
+    {n:"Moldes (100 uds)", p:5.00, u:100, q:10, t:"Moldes"},
+    {n:"Toallitas sin pelusa (500 uds)", p:6.00, u:500, q:5, t:"Toallitas"},
+    {n:"Lima 100/180", p:2.50, u:5, q:1, t:"Usos (desinfectable)"}
+  ]
+};
+const KEY="fraventi-calc-v2";
+let S;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || structuredClone(EXAMPLE); }catch(e){ S = structuredClone(EXAMPLE); }
+
+const $ = id => document.getElementById(id);
+const num = v => { const x = parseFloat(String(v).replace(",", ".")); return isFinite(x) ? x : 0; };
+const fmt = v => {
+  const s = (Math.round(v*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2});
+  return S.cur === "€" ? s + " €" : "MX$" + s;
+};
+const dec = v => String(v).replace(".", ",");
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+function renderProds(){
+  const box = $("prods"); box.innerHTML = "";
+  S.prods.forEach((p,i)=>{
+    const el = document.createElement("div"); el.className="prod";
+    el.innerHTML = `
+      <div class="name"><input aria-label="Nombre del producto" value="${p.n.replace(/"/g,'&quot;')}"><button class="x" type="button" aria-label="Quitar ${p.n.replace(/"/g,'&quot;')}">×</button></div>
+      <div class="nums">
+        <label>Precio envase<span class="in"><input inputmode="decimal" value="${dec(p.p)}" data-k="p"></span></label>
+        <label>${p.t||"Unidades"}<span class="in"><input inputmode="decimal" value="${dec(p.u)}" data-k="u"></span></label>
+        <label>Usas en 1 set<span class="in"><input inputmode="decimal" value="${dec(p.q)}" data-k="q"></span></label>
+      </div>
+      <div class="cost"><span>Coste en este set</span><b data-c></b></div>`;
+    el.querySelector(".name input").addEventListener("input", e=>{ p.n=e.target.value; save(); });
+    el.querySelectorAll(".nums input").forEach(inp=>inp.addEventListener("input", e=>{ p[e.target.dataset.k]=num(e.target.value); calc(); }));
+    el.querySelector(".x").addEventListener("click", ()=>{ S.prods.splice(i,1); renderProds(); calc(); });
+    box.appendChild(el);
+  });
+}
+
+function calc(){
+  ["price","mins","hours","fixed","wage","iva","card"].forEach(k=>S[k]=num($(k).value));
+  document.querySelectorAll(".cur").forEach(e=>e.textContent=S.cur);
+  let prod = 0;
+  document.querySelectorAll("#prods .prod").forEach((el,i)=>{
+    const p=S.prods[i]; const c = p.u>0 ? p.p/p.u*p.q : 0; prod+=c;
+    el.querySelector("[data-c]").textContent = fmt(c);
+  });
+  $("sumP").textContent = fmt(prod);
+
+  const h = S.mins/60;
+  const ok = S.hours>0 && S.mins>0;
+  const fixH = ok ? S.fixed/S.hours : 0, wageH = ok ? S.wage/S.hours : 0;
+  const fix = h*fixH, wage = h*wageH;
+  const keep = 1/(1+S.iva/100) - S.card/100;
+  const minNet = prod+fix, tgtNet = minNet+wage;
+  const minP = keep>0 ? minNet/keep : 0, sug = keep>0 ? tgtNet/keep : 0;
+  const net = S.price*keep, profit = net-minNet, perH = h>0 ? profit/h : 0;
+
+  $("oProd").textContent=fmt(prod); $("oFix").textContent=fmt(fix); $("oWage").textContent=fmt(wage);
+  $("oMin").textContent=fmt(minP); $("oSug").textContent=fmt(sug);
+  $("oNet").textContent=fmt(net); $("oProfit").textContent=fmt(profit); $("oHour").textContent=fmt(perH);
+
+  let col, txt, sub;
+  if(!ok){ col="#9A8CA3"; txt="Faltan datos"; sub="Pon tus horas al mes y los minutos por set."; }
+  else if(net<minNet){ col="var(--bad)"; txt="Con este precio pierdes dinero"; sub=`Te faltan ${fmt(Math.max(0,minP-S.price))} solo para cubrir costes.`; }
+  else if(net<tgtNet){ col="var(--warn)"; txt="Cubres costes, pero no tu sueldo"; sub=`Te faltan ${fmt(Math.max(0,sug-S.price))} por set para llegar a tu sueldo.`; }
+  else { col="var(--ok)"; txt="Tu precio cubre costes y sueldo"; sub=`Te sobran ${fmt(S.price-sug)} por set.`; }
+  $("dot").style.background=col; $("vText").textContent=txt; $("vSub").textContent=sub;
+
+  // nail layers: full height (164-6) maps to max(sugerido, precio)*1.05
+  const top=6, bot=164, H=bot-top;
+  const scale = Math.max(tgtNet, net, 0.01)*1.08;
+  const y = v => bot - Math.min(1,v/scale)*H;
+  const set=(id,a,b)=>{ const r=$(id); r.setAttribute("y", y(b)); r.setAttribute("height", Math.max(0,y(a)-y(b))); };
+  set("lProd",0,prod); set("lFix",prod,minNet); set("lTop",minNet,tgtNet);
+  $("mark").style.transform=`translateY(${y(net)}px)`;
+  save();
+}
+
+function load(){
+  ["price","mins","hours","fixed","wage","iva","card"].forEach(k=>$(k).value=dec(S[k]));
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.cur===S.cur)));
+  renderProds(); calc();
+}
+document.querySelectorAll(".step input:not(#prods input)").forEach(i=>i.addEventListener("input", calc));
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click", ()=>{
+  S.cur=b.dataset.cur; $("iva").value = S.cur==="€" ? 21 : 16; load();
+}));
+$("addP").addEventListener("click", ()=>{ S.prods.push({n:"Nuevo producto",p:0,u:1,q:1,t:"Unidades"}); renderProds(); calc(); });
+$("reset").addEventListener("click", ()=>{ S=structuredClone(EXAMPLE); load(); });
+if(PRESALE_URL){ $("cta").style.display="block"; $("ctaLink").href=PRESALE_URL; }
+load();
+</script>
+</body>
+</html>
